@@ -3,25 +3,22 @@ data = [0.697,0.460; 0.774,0.376; 0.634,0.264; 0.608,0.318; 0.556,0.215; 0.403,0
     0.360,0.370; 0.593,0.042; 0.719,0.103];
 label = [1;1;1;1;1;1;1;1;0;0;0;0;0;0;0;0;0];
 
-ss = size(data,1);
+%divide training set from data
 trData = data([[1:5], [14:17]], :);
 trLabel = label([[1:5], [14:17]], :);
 trSet = [trData ones(size(trData, 1), 1)];
 
+%expression of maximum likelihood target
 syms w1 w2 b;
 w = [w1;w2;b];
 f = 0;
 for i = 1:size(trSet,1)
     xi = trSet(i,:);
-    yi = trSet(i, 3);
+    yi = trLabel(i);
     f = f +  (-yi)*xi*w + log(1+ exp(xi*w));   
 end
 
-df = [diff(f, 'w1'); diff(f, 'w2'); diff(f, 'b')];
-df = conj(df');
-
-%Newton
-
+%Newton Method
 x0 = [0; 0; 1];
 N = 2000;
 eps = 0.001;
@@ -50,12 +47,14 @@ for i = 1:N
 end
 figure(1);
 hold on;
-line([0, -x0(3)/x0(2)], [-x0(3)/x0(1), 0]);
+a=-(0.1*x0(1)+x0(3))/x0(2);
+b=-(0.9*x0(1)+x0(3))/x0(2);
+line([0.1 0.9],[a b]);
 for i = 1:size(data,1)
     if label(i) == 1
-        plot(data(i, 1), data(i, 2), 'r+');
+        plot(data(i, 1), data(i, 2), 'r+'); %show the positive sample
     else
-        plot(data(i, 1), data(i, 2), 'b+');
+        plot(data(i, 1), data(i, 2), 'b+'); %show the negative sample
     end
 end
 
